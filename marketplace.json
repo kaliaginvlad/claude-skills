@@ -1,0 +1,24 @@
+{
+  "name": "vk-tools",
+  "owner": {
+    "name": "VK"
+  },
+  "metadata": {
+    "description": "Personal skills: communication-style equalizer and admin script library.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "persona",
+      "source": "./plugins/persona",
+      "description": "Communication-style equalizer: sliders for humor, irony, warmth, energy, drama and brevity, plus gender and name.",
+      "version": "1.0.0"
+    },
+    {
+      "name": "scripts",
+      "source": "./plugins/scripts",
+      "description": "Library of ready-made admin scripts: Azure VM start, safe and planned reboot, IP/MAC logging, file listing, Linux user cloning.",
+      "version": "1.0.0"
+    }
+  ]
+}
