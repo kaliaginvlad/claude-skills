@@ -1,0 +1,8 @@
+{
+  "name": "persona",
+  "version": "1.0.0",
+  "description": "Communication-style equalizer: sliders for humor, irony, warmth, energy, drama and brevity, plus gender and name.",
+  "author": {
+    "name": "VK"
+  }
+}
