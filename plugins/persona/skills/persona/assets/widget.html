@@ -1,0 +1,106 @@
+<h2 class="sr-only">Communication style panel: name, gender and six personality sliders from 0 to 5.</h2>
+<style>
+.p-row{display:grid;grid-template-columns:150px minmax(0,1fr) 44px;align-items:center;gap:16px;margin:0 0 10px}
+.p-lbl{font-size:14px;color:var(--text-secondary)}
+.p-val{font-size:14px;font-weight:500;text-align:right}
+.p-seg{display:flex;gap:6px;flex-wrap:wrap}
+.p-seg button{font-size:13px;padding:6px 14px}
+.p-seg button[aria-pressed="true"]{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
+.p-err{font-size:13px;color:var(--text-danger);margin:4px 0 0}
+</style>
+<div style="padding:1rem 0 0">
+  <div class="p-row">
+    <label class="p-lbl" for="p-name">Name</label>
+    <div><input id="p-name" type="text" maxlength="40" style="width:100%"><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Default name — edit to change</p></div>
+    <span></span>
+  </div>
+  <div class="p-row">
+    <span class="p-lbl">Gender</span>
+    <div class="p-seg" id="p-gender">
+      <button type="button" data-g="f">Female</button>
+      <button type="button" data-g="m">Male</button>
+      <button type="button" data-g="n">Neutral</button>
+    </div>
+    <span></span>
+  </div>
+  <div style="border-top:0.5px solid var(--border);margin:14px 0"></div>
+  <div class="p-row"><label class="p-lbl" for="s-humor">Humor</label><input type="range" id="s-humor" min="0" max="5" step="1"><span class="p-val" id="v-humor"></span></div>
+  <div class="p-row"><label class="p-lbl" for="s-irony">Irony and edge</label><input type="range" id="s-irony" min="0" max="5" step="1"><span class="p-val" id="v-irony"></span></div>
+  <div class="p-row"><label class="p-lbl" for="s-warmth">Warmth</label><input type="range" id="s-warmth" min="0" max="5" step="1"><span class="p-val" id="v-warmth"></span></div>
+  <div class="p-row"><label class="p-lbl" for="s-energy">Energy</label><input type="range" id="s-energy" min="0" max="5" step="1"><span class="p-val" id="v-energy"></span></div>
+  <div class="p-row"><label class="p-lbl" for="s-drama">Drama</label><input type="range" id="s-drama" min="0" max="5" step="1"><span class="p-val" id="v-drama"></span></div>
+  <div class="p-row"><label class="p-lbl" for="s-brevity">Brevity</label><input type="range" id="s-brevity" min="0" max="5" step="1"><span class="p-val" id="v-brevity"></span></div>
+  <div id="p-text" style="background:var(--surface-1);border-radius:var(--radius);padding:14px 16px;margin:16px 0;font-size:14px;line-height:1.6"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button type="button" id="p-apply">Apply to chat ↗</button>
+    <button type="button" id="p-copy"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+    <button type="button" id="p-reset">Reset</button>
+  </div>
+  <p class="p-err" id="p-err" hidden></p>
+</div>
+<script>
+const INIT = {"name":"Claude","gender":"n","humor":1,"irony":0,"warmth":3,"energy":2,"drama":0,"brevity":2};
+const DEFAULTS = {"name":"Claude","gender":"n","humor":1,"irony":0,"warmth":3,"energy":2,"drama":0,"brevity":2};
+const DEFAULT_NAME = "Claude";
+const KEYS = ["humor","irony","warmth","energy","drama","brevity"];
+const TITLES = {humor:"humor",irony:"irony",warmth:"warmth",energy:"energy",drama:"drama",brevity:"brevity"};
+const PHRASES = {
+  humor:["no jokes","joke rarely","joke now and then","joke willingly","lots of humor","joke constantly"],
+  irony:["no irony","light irony","noticeable irony","ironic, with teasing","sharp and sarcastic","maximally biting, but never rude"],
+  warmth:["reserved and neutral","polite but cool","friendly","warm and caring","very warm and supportive","maximally warm and caring"],
+  energy:["very calm","calm","even","upbeat","energetic","very energetic, with exclamations"],
+  drama:["no drama","almost no drama","a touch of expressiveness","emotional","theatrical","maximally dramatic"],
+  brevity:["detailed and thorough","fairly detailed","medium length","short","very short","extremely brief, one or two sentences"]
+};
+const GENDER = {f:["female","Refer to yourself in the feminine grammatical gender."],m:["male","Refer to yourself in the masculine grammatical gender."],n:["neutral","Refer to yourself neutrally, avoiding gendered forms."]};
+const nameEl = document.getElementById("p-name");
+const errEl = document.getElementById("p-err");
+let gender = "n";
+
+function setState(s){
+  nameEl.value = s.name || DEFAULT_NAME;
+  gender = GENDER[s.gender] ? s.gender : "n";
+  KEYS.forEach(k => { document.getElementById("s-"+k).value = Math.round(s[k]); });
+  render();
+}
+function build(){
+  const name = nameEl.value.trim() || DEFAULT_NAME;
+  const v = {}; KEYS.forEach(k => v[k] = Math.round(+document.getElementById("s-"+k).value));
+  let style = "In this chat, communicate like this: " + KEYS.map(k => PHRASES[k][v[k]]).join("; ") + ". " + GENDER[gender][1];
+  if (name.toLowerCase() !== DEFAULT_NAME.toLowerCase()) style += " Your name is " + name + ": if this name appears in a message (in any form), you are being addressed or talked about.";
+  style += " Keep replying in the language the user writes in.";
+  const header = "[Persona] Name: " + name + "; gender: " + GENDER[gender][0] + "; " + KEYS.map(k => TITLES[k] + " " + v[k] + "/5").join(", ") + ".";
+  return {header, style};
+}
+function render(){
+  KEYS.forEach(k => { document.getElementById("v-"+k).textContent = Math.round(+document.getElementById("s-"+k).value) + " / 5"; });
+  document.querySelectorAll("#p-gender button").forEach(b => b.setAttribute("aria-pressed", b.dataset.g === gender ? "true" : "false"));
+  document.getElementById("p-text").textContent = build().style;
+}
+function finalText(){ const b = build(); return b.header + "\n" + b.style; }
+function showErr(msg){ errEl.style.color = "var(--text-danger)"; errEl.textContent = msg; errEl.hidden = false; }
+function showInfo(msg){ errEl.style.color = "var(--text-secondary)"; errEl.textContent = msg; errEl.hidden = false; }
+async function copyText(t){ try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } }
+
+KEYS.forEach(k => document.getElementById("s-"+k).addEventListener("input", render));
+nameEl.addEventListener("input", () => { errEl.hidden = true; render(); });
+document.querySelectorAll("#p-gender button").forEach(b => b.addEventListener("click", () => { gender = b.dataset.g; render(); }));
+document.getElementById("p-reset").addEventListener("click", () => { errEl.hidden = true; setState(DEFAULTS); });
+document.getElementById("p-apply").addEventListener("click", async () => {
+  if (/[\[\]<>]/.test(nameEl.value)) { showErr("The name can't contain brackets"); return; }
+  const text = finalText();
+  let sent = false, why = "sendPrompt is not available here";
+  if (typeof sendPrompt === "function") {
+    try { await sendPrompt(text); sent = true; } catch (e) { why = "sending failed: " + (e && e.message ? e.message : e); }
+  }
+  const copied = await copyText(text);
+  if (sent) showInfo("Sent to chat." + (copied ? " If no message appeared, paste it into the chat — the text is already copied." : ""));
+  else showErr("Couldn't send (" + why + "). " + (copied ? "The text is copied — paste it into the chat." : "Press Copy and paste the text into the chat."));
+});
+document.getElementById("p-copy").addEventListener("click", async () => {
+  const btn = document.getElementById("p-copy");
+  try { await navigator.clipboard.writeText(finalText()); btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copied'; }
+  catch (e) { const r = document.createRange(); r.selectNodeContents(document.getElementById("p-text")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); showErr("Text selected — press Ctrl+C"); }
+});
+setState(INIT);
+</script>

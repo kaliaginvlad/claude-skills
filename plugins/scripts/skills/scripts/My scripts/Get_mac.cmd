@@ -1,0 +1,5 @@
+echo.  >> "%USERPROFILE%\Desktop\mac.txt"
+ipconfig | find/i "IPv4" | more | (set/p x=& cmd/v/c echo !x:*: =!) >> "%USERPROFILE%\Desktop\mac.txt"
+echo %date% %time% >> "%USERPROFILE%\Desktop\mac.txt"
+getmac >> "%USERPROFILE%\Desktop\mac.txt"
+echo _____________________________________ >> "%USERPROFILE%\Desktop\mac.txt"

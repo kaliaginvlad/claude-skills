@@ -1,0 +1,1 @@
+shutdown /r /t 10 /c "Planned reboot" /d p:0:0
