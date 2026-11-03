@@ -1,0 +1,8 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "Library of ready-made admin scripts: Azure VM start, safe and planned reboot, IP/MAC logging, file listing, Linux user cloning.",
+  "author": {
+    "name": "VK"
+  }
+}
